@@ -1,0 +1,286 @@
+body, h1, h2, h3, p, ul, li {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212;
+    color: #cccccc;
+    line-height: 1.6;
+}
+
+/* Шапка */
+
+header {
+    background-color: #1f1f1f;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5em;
+    color: #ffffff;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #ff6600;
+}
+
+/* Главный блок */
+
+#hero {
+    background: url('img/hero-bg.jpg') center/cover no-repeat;
+    text-align: center;
+    padding: 100px 20px;
+    color: #ffffff;
+}
+
+#hero h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+}
+
+.cta-button {
+    display: inline-block;
+    background-color: #ff6600;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #333;
+}
+
+/* Меню */
+
+#menu {
+    background-color: #1a1a1a;
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.menu-item {
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.menu-item:hover {
+    transform: scale(1.05);
+}
+
+.menu-item img {
+    max-width: 100%;
+    height: 200px; 
+    object-fit: cover;
+    border-radius: 10px;
+    transition: opacity 0.3s ease;
+}
+
+.menu-item:hover img {
+    opacity: 0.8;
+}
+
+.menu-item h3 {
+    font-size: 1.5em;
+    margin: 10px 0;
+    color: #ffffff;
+}
+
+.menu-item p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    color: #cccccc;
+}
+
+.menu-item span {
+    display: block;
+    color: #ff6600;
+    font-size: 1.2em;
+}
+
+/* Акции */
+
+#specials {
+    background-color: #1a1a1a;
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.special {
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.special:hover {
+    transform: scale(1.05);
+}
+
+.special img {
+    max-width: 100%;
+    height: 200px; 
+    object-fit: cover;
+    border-radius: 10px;
+    transition: opacity 0.3s ease;
+}
+
+.special:hover img {
+    opacity: 0.8;
+}
+
+.special h3 {
+    font-size: 1.5em;
+    margin: 10px 0;
+    color: #ffffff;
+}
+
+.special p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    color: #cccccc;
+}
+
+/* О нас */
+
+#about {
+    background-color: #333;
+    color: #ffffff;
+    text-align: center;
+    padding: 50px 20px;
+}
+
+/* Контакты */
+
+#contact {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    text-align: center;
+    padding: 50px 20px;
+}
+
+#contact form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#contact label {
+    display: block;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+    color: #cccccc;
+}
+
+#contact input,
+#contact textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #333;
+    color: #ffffff;
+    border: 1px solid #555;
+    border-radius: 5px;
+}
+
+#contact button {
+    background-color: #ff6600;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#contact button:hover {
+    background-color: #333;
+}
+
+/* Футер */
+
+footer {
+    background-color: #333;
+    color: #ffffff;
+    text-align: center;
+    padding: 20px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Медиа-запросы */
+
+@media screen and (max-width: 768px) {
+    #hero h1 {
+        font-size: 2.5em;
+    }
+
+    .cta-button {
+        font-size: 1em;
+        padding: 8px 16px;
+    }
+
+    .menu-item img,
+    .special img {
+        height: 150px;
+    }
+
+    .menu-item h3,
+    .special h3 {
+        font-size: 1.2em;
+    }
+
+    .menu-item p,
+    .special p {
+        font-size: 1em;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    #hero h1 {
+        font-size: 2em;
+    }
+
+    .cta-button {
+        font-size: 0.8em;
+        padding: 6px 12px;
+    }
+
+    .menu-item img,
+    .special img {
+        height: 120px;
+    }
+
+    .menu-item h3,
+    .special h3 {
+        font-size: 1em;
+    }
+
+    .menu-item p,
+    .special p {
+        font-size: 0.9em;
+    }
+}

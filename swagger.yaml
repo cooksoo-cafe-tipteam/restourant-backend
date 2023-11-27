@@ -1,0 +1,29 @@
+swagger: "2.0"
+info:
+  title: "Ваше API"
+  description: "Описание вашего API"
+  version: "1.0.0"
+paths:
+  /admin/couriers:
+    get:
+      summary: "Получение информации о курьерах"
+      description: "Этот эндпоинт возвращает список курьеров."
+      responses:
+        200:
+          description: "Список курьеров"
+          schema:
+            type: object
+            properties:
+              couriers_info:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    courier_name:
+                      type: string
+                    contact_number:
+                      type: string
+                    offline_interview_passed:
+                      type: boolean
