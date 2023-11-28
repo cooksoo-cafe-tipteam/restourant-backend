@@ -1,16 +1,439 @@
 swagger: "2.0"
 info:
-  title: "Ваше API"
-  description: "Описание вашего API"
-  version: "1.0.0"
+  title: My Flask App API
+  description: API for My Flask App
+  version: "1.0"
+
+tags:
+  - name: Authentication and Authorization
+    description: Endpoints related to user authentication and authorization
+  - name: Pages
+    description: Endpoints related to different pages
+  - name: Menu Management
+    description: Endpoints related to menu management
+  - name: Categories
+    description: Endpoints related to menu categories
+  - name: Courier Management
+    description: Endpoints related to courier management
+  - name: Promotion Management
+    description: Endpoints related to promotion management
+  - name: Branch Management
+    description: Endpoints related to branch management
+  - name: Order Management
+    description: Endpoints related to order management
+
+securityDefinitions:
+  basicAuth:
+    type: basic
+
 paths:
+  /login:
+    post:
+      tags:
+        - Authentication and Authorization
+      summary: Log in
+      description: Log in to the application
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: credentials
+          description: User credentials
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+      responses:
+        "200":
+          description: Successful login
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: false
+
+  /:
+    get:
+      tags:
+        - Pages
+      summary: Home
+      description: Home page
+      produces:
+        - text/html
+      responses:
+        "200":
+          description: Home page
+          schema:
+            type: string
+
+  /admin:
+    get:
+      tags:
+        - Pages
+      summary: Admin Page
+      description: Admin page
+      produces:
+        - text/html
+      responses:
+        "200":
+          description: Admin page
+          schema:
+            type: string
+
+  /admin/menu_items:
+    get:
+      tags:
+        - Menu Management
+      summary: Get menu items
+      description: Get information about menu items. Requires authentication.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              menu_items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    item_name:
+                      type: string
+                    price:
+                      type: number
+                    category_id:
+                      type: integer
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/menu_items/delete:
+    delete:
+      tags:
+        - Menu Management
+      summary: Delete menu item
+      description: Delete a menu item. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for deleting a menu item
+          required: true
+          schema:
+            type: object
+            properties:
+              item_id:
+                type: integer
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/add_menu_item:
+    post:
+      tags:
+        - Menu Management
+      summary: Add menu item
+      description: Add a new menu item. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for adding a menu item
+          required: true
+          schema:
+            type: object
+            properties:
+              item_name:
+                type: string
+              price:
+                type: number
+              category_id:
+                type: integer
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/menu_items/edit:
+    post:
+      tags:
+        - Menu Management
+      summary: Edit menu item
+      description: Edit a menu item. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for editing a menu item
+          required: true
+          schema:
+            type: object
+            properties:
+              item_id:
+                type: integer
+              new_item_name:
+                type: string
+              new_price:
+                type: number
+              new_category:
+                type: string
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/menu_categories:
+    get:
+      tags:
+        - Categories
+      summary: Get menu categories
+      description: Get information about menu categories. Requires authentication.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              menu_categories:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    category_name:
+                      type: string
+                    description:
+                      type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/add_menu_category:
+    post:
+      tags:
+        - Categories
+      summary: Add menu category
+      description: Add a new menu category. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for adding a menu category
+          required: true
+          schema:
+            type: object
+            properties:
+              category_name:
+                type: string
+              description:
+                type: string
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/menu_categories/delete:
+    delete:
+      tags:
+        - Categories
+      summary: Delete menu category
+      description: Delete a menu category. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for deleting a menu category
+          required: true
+          schema:
+            type: object
+            properties:
+              category_id:
+                type: integer
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/menu_categories/edit_description:
+    post:
+      tags:
+        - Categories
+      summary: Edit category description
+      description: Edit the description of a menu category. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for editing a menu category description
+          required: true
+          schema:
+            type: object
+            properties:
+              category_id:
+                type: integer
+              new_description:
+                type: string
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
   /admin/couriers:
     get:
-      summary: "Получение информации о курьерах"
-      description: "Этот эндпоинт возвращает список курьеров."
+      tags:
+        - Courier Management
+      summary: Get courier information
+      description: Get information about couriers. Requires authentication.
+      produces:
+        - application/json
       responses:
-        200:
-          description: "Список курьеров"
+        "200":
+          description: Successful request
           schema:
             type: object
             properties:
@@ -27,3 +450,502 @@ paths:
                       type: string
                     offline_interview_passed:
                       type: boolean
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/add_courier:
+    post:
+      tags:
+        - Courier Management
+      summary: Add a new courier
+      description: Add a new courier. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for adding a courier
+          required: true
+          schema:
+            type: object
+            properties:
+              courier_name:
+                type: string
+              phone_num:
+                type: string
+              offline_interview_passed:
+                type: boolean
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/delete_courier:
+    post:
+      tags:
+        - Courier Management
+      summary: Delete courier
+      description: Delete a courier. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for deleting a courier
+          required: true
+          schema:
+            type: object
+            properties:
+              courier_id:
+                type: integer
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/edit_courier:
+    post:
+      tags:
+        - Courier Management
+      summary: Edit courier
+      description: Edit a courier. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for editing a courier
+          required: true
+          schema:
+            type: object
+            properties:
+              courier_id:
+                type: integer
+              new_name:
+                type: string
+              new_phone:
+                type: string
+              new_interview_passed:
+                type: boolean
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/promotions_data:
+    get:
+      tags:
+        - Promotion Management
+      summary: Get promotions data
+      description: Get information about promotions. Requires authentication.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              promotions_data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    promo_code:
+                      type: string
+                    discount_amount:
+                      type: number
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/add_promotion:
+    post:
+      tags:
+        - Promotion Management
+      summary: Add promotion
+      description: Add a new promotion. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for adding a promotion
+          required: true
+          schema:
+            type: object
+            properties:
+              promo_code:
+                type: string
+              discount_amount:
+                type: number
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/delete_promotion:
+    post:
+      tags:
+        - Promotion Management
+      summary: Delete promotion
+      description: Delete a promotion. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for deleting a promotion
+          required: true
+          schema:
+            type: object
+            properties:
+              promotion_id:
+                type: integer
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/branches_data:
+    get:
+      tags:
+        - Branch Management
+      summary: Get branches data
+      description: Get information about branches. Requires authentication.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              branches_data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    branch_name:
+                      type: string
+                    location:
+                      type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/delete_branch:
+    post:
+      tags:
+        - Branch Management
+      summary: Delete branch
+      description: Delete a branch. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for deleting a branch
+          required: true
+          schema:
+            type: object
+            properties:
+              branch_id:
+                type: integer
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/add_branch:
+    post:
+      tags:
+        - Branch Management
+      summary: Add branch
+      description: Add a new branch. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for adding a branch
+          required: true
+          schema:
+            type: object
+            properties:
+              branch_name:
+                type: string
+              location:
+                type: string
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+  /admin/edit_branch:
+    post:
+      tags:
+        - Branch Management
+      summary: Edit branch
+      description: Edit a branch. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for editing a branch
+          required: true
+          schema:
+            type: object
+            properties:
+              branch_id:
+                type: integer
+              new_name:
+                type: string
+              new_location:
+                type: string
+      responses:
+        "200":
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+      security:
+        - basicAuth: []
+
+
+  /admin/orders_data:
+    get:
+      tags:
+        - Order Management
+      summary: Get orders data
+      description: Get information about orders. Requires authentication.
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              orders_data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    order_id:
+                      type: integer
+                    order_date:
+                      type: string
+                    customer_name:
+                      type: string
+                    total_price:
+                      type: number
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: 'Unauthorized'
+      security:
+        - basicAuth: []
+
+  /admin/delete_order:
+    post:
+      tags:
+        - Order Management
+      summary: Delete order
+      description: Delete an order. Requires authentication.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Data for deleting an order
+          required: true
+          schema:
+            type: object
+            properties:
+              order_id:
+                type: integer
+      responses:
+        '200':
+          description: Successful request
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                default: true
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                default: 'Unauthorized'
+      security:
+        - basicAuth: []

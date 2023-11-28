@@ -28,6 +28,10 @@ def load_user(user_id):
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+    """
+    Log in to the application
+    ---
+    """
     if request.method == 'POST':
         if request.is_json:
             data = request.get_json()
@@ -47,14 +51,6 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/admin')
-@login_required
-def admin():
-    if current_user.is_authenticated:
-        return render_template('admin.html')
-    else:
-        return redirect(url_for('login'))
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -65,6 +61,21 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+@app.route('/admin')
+@login_required
+def admin():
+    if current_user.is_authenticated:
+        return render_template('admin.html')
+    else:
+        return redirect(url_for('login'))
+
+#---------------------УПРАВЛЕНИЕ МЕНЮ---------------------------
+
+@app.route("/admin/menu_items", methods=["GET"])
+def admin_menu_items():
+    if request.method == "GET":
+        menu_items = get_menu_items()
+        return jsonify(menu_items=menu_items)
 
 def get_menu_items():
     conn = sqlite3.connect("food.db")
@@ -73,132 +84,6 @@ def get_menu_items():
     menu_items = c.fetchall()
     conn.close()
     return menu_items
-
-def get_couriers():
-    conn = sqlite3.connect("food.db")
-    c = conn.cursor()
-    c.execute("SELECT * FROM couriers")
-    couriers_info = c.fetchall()
-    conn.close()
-    return couriers_info
-
-@app.route("/admin/couriers", methods=["GET"])
-def admin_cocouriers_info():
-    """
-    Получение информации о курьерах.
-    ---
-    responses:
-      200:
-        description: Список курьеров.
-        schema:
-          type: object
-          properties:
-            couriers_info:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  courier_name:
-                    type: string
-                  contact_number:
-                    type: string
-                  offline_interview_passed:
-                    type: boolean
-    """
-    if request.method == "GET":
-        couriers_info = get_couriers()
-        return jsonify(couriers_info=couriers_info)
-
-    
-
-
-def get_menu_categories():
-    conn = sqlite3.connect("food.db")
-    c = conn.cursor()
-    c.execute("SELECT * FROM menu_categories")
-    menu_categories = c.fetchall()
-    conn.close()
-    return menu_categories
-
-from flask import request
-
-@app.route("/admin/add_courier", methods=["GET", "POST"])
-def add_courier():
-    if request.method == "POST":
-        try:
-            data = request.json
-            courier_name = data["courier_name"]
-            contact_number = data["phone_num"]
-            offline_interview_passed = data["offline_interview_passed"]
-
-            conn = sqlite3.connect("food.db")
-            c = conn.cursor()
-            c.execute("INSERT INTO couriers (courier_name, contact_number, offline_interview_passed) VALUES (?, ?, ?)", (courier_name, contact_number, offline_interview_passed))
-            conn.commit()
-            conn.close()
-            return jsonify(success=True)
-        except Exception as e:
-            return jsonify(success=False, error=str(e))
-
-    return "Method Not Allowed", 405
-
-@app.route("/admin/delete_courier", methods=["POST"])
-def delete_courier():
-    try:
-        data = request.get_json()
-        courier_id = data.get("courier_id")
-
-        if courier_id is None:
-            raise ValueError("Не указан ID курьера")
-
-        # Проверка существования курьера
-        if not courier_exists(courier_id):
-            raise ValueError("Курьер с указанным ID не найден")
-
-        delete_courier_from_db(courier_id)
-
-        return jsonify(success=True), 200
-    except Exception as e:
-        return jsonify(error=str(e)), 500
-
-def courier_exists(courier_id):
-    conn = sqlite3.connect("food.db")
-    c = conn.cursor()
-    c.execute("SELECT * FROM couriers WHERE id=?", (courier_id,))
-    courier = c.fetchone()
-    conn.close()
-    return courier is not None
-
-def delete_courier_from_db(courier_id):
-    conn = sqlite3.connect("food.db")
-    c = conn.cursor()
-    c.execute("DELETE FROM couriers WHERE id=?", (courier_id,))
-    conn.commit()
-    conn.close()
-
-@app.route("/admin/edit_courier", methods=["POST"])
-def edit_courier():
-    try:
-        data = request.json
-        courier_id = data["courier_id"]
-        new_name = data["new_name"]
-        new_phone = data["new_phone"]
-        new_interview_passed = data["new_interview_passed"]
-
-        conn = sqlite3.connect("food.db")
-        c = conn.cursor()
-        c.execute("UPDATE couriers SET courier_name=?, contact_number=?, offline_interview_passed=? WHERE id=?",
-                  (new_name, new_phone, new_interview_passed, courier_id))
-        conn.commit()
-        conn.close()
-
-        return jsonify(success=True)
-    except Exception as e:
-        return jsonify(success=False, error=str(e))
-
-
 
 @app.route("/admin/add_menu_item", methods=["POST"])
 def add_menu_item():
@@ -217,60 +102,53 @@ def add_menu_item():
     except Exception as e:
         return jsonify(success=False, error=str(e))
 
-# Ваш существующий код
-
-@app.route("/admin/add_menu_category", methods=["POST"])
-def add_menu_category():
+@app.route("/admin/menu_items/delete", methods=["POST"])
+def delete_menu_item():
     try:
         data = request.get_json()
-        print("Received data:", data)  # Отладочный вывод
-        category_name = data.get("category_name")
-        description = data.get("description")
+        item_id = data.get("item_id")
 
-        if not category_name:
-            raise ValueError("Не указано название категории")
+        if item_id is None:
+            raise ValueError("Не указан ID блюда")
 
-        if menu_category_exists(category_name):
-            raise ValueError("Категория с таким названием уже существует")
+        if not menu_item_exists(item_id):
+            raise ValueError("Блюдо с указанным ID не найдено")
 
-        add_menu_category_to_db(category_name, description)
+        delete_menu_item_from_db(item_id)
 
-        return jsonify(success=True), 200
+        return jsonify(success=True)
     except Exception as e:
-        print("Error:", str(e))  # Отладочный вывод
-        return jsonify(error=str(e)), 500
+        return jsonify(success=False, error=str(e))
 
-def add_menu_category_to_db(category_name, description):
+
+def menu_item_exists(item_id):
     conn = sqlite3.connect("food.db")
     c = conn.cursor()
-    c.execute("INSERT INTO menu_categories (category_name, description) VALUES (?, ?)", (category_name, description or ''))
+    c.execute("SELECT * FROM menu_items WHERE id=?", (item_id,))
+    item = c.fetchone()
+    conn.close()
+    return item is not None
+
+def delete_menu_item_from_db(item_id):
+    conn = sqlite3.connect("food.db")
+    c = conn.cursor()
+    c.execute("DELETE FROM menu_items WHERE id=?", (item_id,))
     conn.commit()
     conn.close()
-
-
-
-@app.route("/admin/menu_items", methods=["GET"])
-def admin_menu_items():
-    if request.method == "GET":
-        menu_items = get_menu_items()
-        return jsonify(menu_items=menu_items)
-    
 
 
 @app.route("/admin/menu_items/edit", methods=["POST"])
 def edit_menu_item():
     try:
         data = request.json
-        print(request.json)  # Печать тела запроса для отладки
+        print(request.json)  
 
-        # Проверьте, что вы правильно извлекаете значение категории, например:
         new_category = request.json.get("new_category")
         print(new_category) 
         item_id = int(data["item_id"])
         new_item_name = data["new_item_name"]
         new_price = float(data["new_price"])
         new_category = data["new_category"]
-        # На сервере, в коде, отвечающем за обработку запроса на изменение блюда
 
         if not menu_category_exists(new_category):
             raise ValueError("Категория не существует")
@@ -285,8 +163,51 @@ def edit_menu_item():
     except Exception as e:
         return jsonify(success=False, error=str(e))
 
+#КАТЕГОРИИ
 
-@app.route("/admin/menu_categories/delete", methods=["POST"])
+@app.route("/admin/menu_categories", methods=["GET"])
+def get_menu_categories_route():
+    categories = get_menu_categories()
+    return jsonify(menu_categories=categories)
+
+def get_menu_categories():
+    conn = sqlite3.connect("food.db")
+    c = conn.cursor()
+    c.execute("SELECT * FROM menu_categories")
+    menu_categories = c.fetchall()
+    conn.close()
+    return menu_categories
+
+@app.route("/admin/add_menu_category", methods=["POST"])
+def add_menu_category():
+    try:
+        data = request.get_json()
+        print("Received data:", data)  
+        category_name = data.get("category_name")
+        description = data.get("description")
+
+        if not category_name:
+            raise ValueError("Не указано название категории")
+
+        if menu_category_exists(category_name):
+            raise ValueError("Категория с таким названием уже существует")
+
+        add_menu_category_to_db(category_name, description)
+
+        return jsonify(success=True), 200
+    except Exception as e:
+        print("Error:", str(e))  
+        return jsonify(error=str(e)), 500
+
+def add_menu_category_to_db(category_name, description):
+    conn = sqlite3.connect("food.db")
+    c = conn.cursor()
+    c.execute("INSERT INTO menu_categories (category_name, description) VALUES (?, ?)", (category_name, description or ''))
+    conn.commit()
+    conn.close()
+
+
+@app.route("/admin/menu_categories/delete", methods=["DELETE"])
 def delete_menu_category():
     try:
         data = request.get_json()
@@ -347,46 +268,102 @@ def edit_category_description_in_db(category_id, new_description):
     conn.close()
 
 
-@app.route("/admin/menu_items/delete", methods=["POST"])
-def delete_menu_item():
+
+#-----------------------------------------УПРАВЛЕНИЕ КУРЬЕРАМИ-----------------------------------
+
+def get_couriers():
+    conn = sqlite3.connect("food.db")
+    c = conn.cursor()
+    c.execute("SELECT * FROM couriers")
+    couriers_info = c.fetchall()
+    conn.close()
+    return couriers_info
+
+
+@app.route("/admin/couriers", methods=["GET"])
+def admin_cocouriers_info():
+    if request.method == "GET":
+        couriers_info = get_couriers()
+        return jsonify(couriers_info=couriers_info)
+
+    
+
+@app.route("/admin/add_courier", methods=["GET", "POST"])
+def add_courier():
+    if request.method == "POST":
+        try:
+            data = request.json
+            courier_name = data["courier_name"]
+            contact_number = data["phone_num"]
+            offline_interview_passed = data["offline_interview_passed"]
+
+            conn = sqlite3.connect("food.db")
+            c = conn.cursor()
+            c.execute("INSERT INTO couriers (courier_name, contact_number, offline_interview_passed) VALUES (?, ?, ?)", (courier_name, contact_number, offline_interview_passed))
+            conn.commit()
+            conn.close()
+            return jsonify(success=True)
+        except Exception as e:
+            return jsonify(success=False, error=str(e))
+
+    return "Method Not Allowed", 405
+
+@app.route("/admin/delete_courier", methods=["POST"])
+def delete_courier():
     try:
         data = request.get_json()
-        item_id = data.get("item_id")
+        courier_id = data.get("courier_id")
 
-        if item_id is None:
-            raise ValueError("Не указан ID блюда")
+        if courier_id is None:
+            raise ValueError("Не указан ID курьера")
 
-        # Проверка существования блюда
-        if not menu_item_exists(item_id):
-            raise ValueError("Блюдо с указанным ID не найдено")
+        if not courier_exists(courier_id):
+            raise ValueError("Курьер с указанным ID не найден")
 
-        delete_menu_item_from_db(item_id)
+        delete_courier_from_db(courier_id)
+
+        return jsonify(success=True), 200
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+
+def courier_exists(courier_id):
+    conn = sqlite3.connect("food.db")
+    c = conn.cursor()
+    c.execute("SELECT * FROM couriers WHERE id=?", (courier_id,))
+    courier = c.fetchone()
+    conn.close()
+    return courier is not None
+
+def delete_courier_from_db(courier_id):
+    conn = sqlite3.connect("food.db")
+    c = conn.cursor()
+    c.execute("DELETE FROM couriers WHERE id=?", (courier_id,))
+    conn.commit()
+    conn.close()
+
+@app.route("/admin/edit_courier", methods=["POST"])
+def edit_courier():
+    try:
+        data = request.json
+        courier_id = data["courier_id"]
+        new_name = data["new_name"]
+        new_phone = data["new_phone"]
+        new_interview_passed = data["new_interview_passed"]
+
+        conn = sqlite3.connect("food.db")
+        c = conn.cursor()
+        c.execute("UPDATE couriers SET courier_name=?, contact_number=?, offline_interview_passed=? WHERE id=?",
+                  (new_name, new_phone, new_interview_passed, courier_id))
+        conn.commit()
+        conn.close()
 
         return jsonify(success=True)
     except Exception as e:
         return jsonify(success=False, error=str(e))
 
 
-def menu_item_exists(item_id):
-    conn = sqlite3.connect("food.db")
-    c = conn.cursor()
-    c.execute("SELECT * FROM menu_items WHERE id=?", (item_id,))
-    item = c.fetchone()
-    conn.close()
-    return item is not None
 
-def delete_menu_item_from_db(item_id):
-    conn = sqlite3.connect("food.db")
-    c = conn.cursor()
-    c.execute("DELETE FROM menu_items WHERE id=?", (item_id,))
-    conn.commit()
-    conn.close()
-
-@app.route("/admin/menu_categories", methods=["GET"])
-def get_menu_categories_route():
-    categories = get_menu_categories()
-    return jsonify(menu_categories=categories)
-
+#----------------------------УПРАВЛЕНИЕ ПРОМОКОДАМИ-----------------------------
 
 @app.route("/admin/promotions_data", methods=["GET"])
 def get_promotions_data():
@@ -400,7 +377,6 @@ def get_promotions_data():
 
     return jsonify(promotions_data=promotions_data)
 
-# Роут для добавления нового промокода
 @app.route("/admin/add_promotion", methods=["POST"])
 def add_promotion():
     data = request.get_json()
@@ -434,14 +410,15 @@ def delete_promotion():
 
     return jsonify(success=True)
 
-#----------------------------------------ФИЛИАЛЫ--------------------------------------------------------------------
+#----------------------------------------УПРАВЛЕНИЕ ФИЛИАЛАМИ--------------------------------------------------------------------
+
 @app.route("/admin/branches_data", methods=["GET"])
 def get_branches_data():
     if request.method == "GET":
         branches_data = get_branches()
         return jsonify(branches_data=branches_data)
 
-# Роут для удаления филиала
+
 @app.route("/admin/delete_branch", methods=["POST"])
 def delete_branch():
     try:
@@ -471,7 +448,6 @@ def add_branch():
         branch_name = data.get("branch_name")
         location = data.get("location")
 
-        # Проверяем, что оба значения не пусты
         if branch_name and location:
             add_branch_to_db(branch_name, location)
             return jsonify(success=True)
@@ -494,7 +470,6 @@ def edit_branch():
         new_name = data.get("new_name")
         new_location = data.get("new_location")
 
-        # Проверяем, что оба значения не пусты
         if branch_id and new_name and new_location:
             edit_branch_in_db(branch_id, new_name, new_location)
             return jsonify(success=True)
@@ -510,6 +485,7 @@ def edit_branch_in_db(branch_id, new_name, new_location):
 
 
 #------------------ЗАКАЗЫ----------------------------------------------------
+
 def get_orders():
     with sqlite3.connect("food.db") as conn:
         cursor = conn.cursor()
@@ -517,21 +493,18 @@ def get_orders():
         orders = cursor.fetchall()
     return orders
 
-# Функция для удаления заказа по order_id
 def delete_order(order_id):
     with sqlite3.connect("food.db") as conn:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM orders WHERE id=?", (order_id,))
         conn.commit()
 
-# Маршрут для получения данных о заказах
 @app.route("/admin/orders_data", methods=["GET"])
 def get_orders_data():
     if request.method == "GET":
         orders_data = get_orders()
         return jsonify(orders_data=orders_data)
 
-# Маршрут для удаления заказа
 @app.route("/admin/delete_order", methods=["POST"])
 def delete_order_route():
     data = request.get_json()
